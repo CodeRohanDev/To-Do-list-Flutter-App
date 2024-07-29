@@ -1,7 +1,9 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_list/providers/task_provider.dart';
-import 'package:todo_list/screens/home_screen.dart';
+import 'package:todo_list/screens/splash_screen.dart';
 
 void main() {
   runApp(
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: SplashScreen(),
     );
   }
 }
