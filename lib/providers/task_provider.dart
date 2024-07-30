@@ -1,4 +1,3 @@
-// providers/task_provider.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,8 +30,12 @@ class TaskProvider with ChangeNotifier {
   }
 
   void addTask(String title, String note, int priority, DateTime? timestamp) {
-    _tasks.add(Task(
-        title: title, note: note, priority: priority, timestamp: timestamp));
+    final task = Task(
+        title: title,
+        note: note,
+        priority: priority,
+        timestamp: timestamp);
+    _tasks.add(task);
     _sortTasks();
     _saveTasks();
     notifyListeners();
