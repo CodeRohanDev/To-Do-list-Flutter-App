@@ -1,31 +1,34 @@
+// models/task.dart
 class Task {
-  final String title;
-  final int priority;
-  bool isCompleted;
+  String title;
   String note;
+  int priority;
+  bool isCompleted;
+  DateTime? timestamp; // Add timestamp field
 
   Task({
     required this.title,
+    this.note = '',
     required this.priority,
     this.isCompleted = false,
-    this.note = '',
+    this.timestamp, // Initialize timestamp field
   });
 
-  factory Task.fromJson(Map<String, dynamic> json) {
-    return Task(
-      title: json['title'],
-      priority: json['priority'],
-      isCompleted: json['isCompleted'],
-      note: json['note'] ?? '',
-    );
-  }
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'note': note,
+        'priority': priority,
+        'isCompleted': isCompleted,
+        'timestamp': timestamp?.toIso8601String(), // Encode timestamp
+      };
 
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'priority': priority,
-      'isCompleted': isCompleted,
-      'note': note,
-    };
-  }
+  factory Task.fromJson(Map<String, dynamic> json) => Task(
+        title: json['title'],
+        note: json['note'] ?? '',
+        priority: json['priority'],
+        isCompleted: json['isCompleted'],
+        timestamp: json['timestamp'] != null
+            ? DateTime.parse(json['timestamp']) // Decode timestamp
+            : null,
+      );
 }

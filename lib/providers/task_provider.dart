@@ -1,4 +1,5 @@
-import 'dart:convert'; // For JSON encoding and decoding
+// providers/task_provider.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_list/models/task.dart';
@@ -29,8 +30,9 @@ class TaskProvider with ChangeNotifier {
     prefs.setString('tasks', tasksJson);
   }
 
-  void addTask(String title, int priority, String note) {
-    _tasks.add(Task(title: title, priority: priority, note: note));
+  void addTask(String title, String note, int priority, DateTime? timestamp) {
+    _tasks.add(Task(
+        title: title, note: note, priority: priority, timestamp: timestamp));
     _sortTasks();
     _saveTasks();
     notifyListeners();
@@ -38,12 +40,6 @@ class TaskProvider with ChangeNotifier {
 
   void toggleTaskCompletion(int index) {
     _tasks[index].isCompleted = !_tasks[index].isCompleted;
-    _saveTasks();
-    notifyListeners();
-  }
-
-  void updateTaskNote(int index, String note) {
-    _tasks[index].note = note;
     _saveTasks();
     notifyListeners();
   }
