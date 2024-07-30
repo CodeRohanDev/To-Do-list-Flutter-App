@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +23,7 @@ class TaskList extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5),
               ),
+              subtitle: task.note.isNotEmpty ? Text(task.note) : null,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -44,11 +45,50 @@ class TaskList extends StatelessWidget {
                   ),
                 ],
               ),
+              onTap: () {
+                _showEditNoteDialog(context, index, taskProvider);
+              },
               onLongPress: () {
                 _showDeleteConfirmationDialog(context, index, taskProvider);
               },
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showEditNoteDialog(
+      BuildContext context, int index, TaskProvider taskProvider) {
+    final task = taskProvider.tasks[index];
+    final TextEditingController noteController =
+        TextEditingController(text: task.note);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Note'),
+          content: TextField(
+            controller: noteController,
+            decoration: InputDecoration(hintText: 'Enter your note here'),
+            maxLines: 3,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                taskProvider.updateTaskNote(index, noteController.text);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
       },
     );

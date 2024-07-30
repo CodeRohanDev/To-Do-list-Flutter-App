@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   final TextEditingController _taskController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); // Key for form validation
   int _selectedPriority = 1; // Default priority (High)
   late AnimationController _animationController;
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     _animationController.dispose();
     _taskController.dispose();
+    _noteController.dispose();
     super.dispose();
   }
 
@@ -75,121 +77,104 @@ class _HomeScreenState extends State<HomeScreen>
                           'Add New Task',
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 10.0),
                         TextFormField(
                           controller: _taskController,
                           decoration: InputDecoration(
+                            labelText: 'Task',
                             border: OutlineInputBorder(),
-                            labelText: 'Task Title',
-                            prefixIcon: Icon(Icons.title),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter a task title';
+                              return 'Please enter a task';
                             }
                             return null;
                           },
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 10.0),
+                        TextFormField(
+                          controller: _noteController,
+                          decoration: InputDecoration(
+                            labelText: 'Note (optional)',
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLines: 3,
+                        ),
+                        SizedBox(height: 10.0),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.priority_high, color: Colors.red),
-                            SizedBox(width: 10),
-                            Text('Priority:'),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: PopupMenuButton<int>(
-                                onSelected: (int value) {
-                                  setState(() {
-                                    _selectedPriority = value;
-                                  });
-                                },
-                                itemBuilder: (BuildContext context) =>
-                                    <PopupMenuEntry<int>>[
-                                  PopupMenuItem<int>(
-                                    value: 1,
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.priority_high,
-                                            color: Colors.red),
-                                        SizedBox(width: 10),
-                                        Text('High Priority'),
-                                      ],
-                                    ),
-                                  ),
-                                  PopupMenuItem<int>(
-                                    value: 2,
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.priority_high,
-                                            color: Colors.orange),
-                                        SizedBox(width: 10),
-                                        Text('Medium Priority'),
-                                      ],
-                                    ),
-                                  ),
-                                  PopupMenuItem<int>(
-                                    value: 3,
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.priority_high,
-                                            color: Colors.green),
-                                        SizedBox(width: 10),
-                                        Text('Low Priority'),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 12.0),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
+                            PopupMenuButton<int>(
+                              onSelected: (value) {
+                                setState(() {
+                                  _selectedPriority = value;
+                                });
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  value: 1,
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        _getPriorityText(_selectedPriority),
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                      Icon(Icons.arrow_drop_down),
+                                      Icon(Icons.priority_high,
+                                          color: Colors.red),
+                                      SizedBox(width: 8.0),
+                                      Text('High'),
                                     ],
                                   ),
                                 ),
+                                PopupMenuItem(
+                                  value: 2,
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.priority_high,
+                                          color: Colors.orange),
+                                      SizedBox(width: 8.0),
+                                      Text('Medium'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
+                                  value: 3,
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.priority_high,
+                                          color: Colors.green),
+                                      SizedBox(width: 8.0),
+                                      Text('Low'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.priority_high,
+                                    color: _getPriorityColor(_selectedPriority),
+                                  ),
+                                  SizedBox(width: 8.0),
+                                  Text('Priority'),
+                                ],
                               ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  final taskProvider =
+                                      Provider.of<TaskProvider>(context,
+                                          listen: false);
+                                  taskProvider.addTask(
+                                    _taskController.text,
+                                    _selectedPriority,
+                                    _noteController.text,
+                                  );
+                                  _taskController.clear();
+                                  _noteController.clear();
+                                  Navigator.pop(context);
+                                }
+                              },
+                              child: Text('Add Task'),
                             ),
                           ],
-                        ),
-                        SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                Provider.of<TaskProvider>(context,
-                                        listen: false)
-                                    .addTask(_taskController.text,
-                                        _selectedPriority);
-                                _taskController.clear();
-                                Navigator.of(context).pop();
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              padding: EdgeInsets.symmetric(vertical: 15.0),
-                            ),
-                            child: Text(
-                              'Add Task',
-                              style: TextStyle(
-                                color:
-                                    Colors.white, // Ensure text color is white
-                                fontWeight: FontWeight.bold, // Make text bold
-                              ),
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -200,21 +185,19 @@ class _HomeScreenState extends State<HomeScreen>
           },
         );
       },
-    ).then((_) {
-      _animationController.reverse();
-    });
+    );
   }
 
-  String _getPriorityText(int priority) {
+  Color _getPriorityColor(int priority) {
     switch (priority) {
       case 1:
-        return 'High Priority';
+        return Colors.red;
       case 2:
-        return 'Medium Priority';
+        return Colors.orange;
       case 3:
-        return 'Low Priority';
+        return Colors.green;
       default:
-        return '';
+        return Colors.black;
     }
   }
 }

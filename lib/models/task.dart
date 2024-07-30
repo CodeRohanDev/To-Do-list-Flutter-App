@@ -1,14 +1,14 @@
-import 'dart:convert';
-
 class Task {
   final String title;
   final int priority;
   bool isCompleted;
+  String note;
 
   Task({
     required this.title,
     required this.priority,
     this.isCompleted = false,
+    this.note = '',
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -16,6 +16,7 @@ class Task {
       title: json['title'],
       priority: json['priority'],
       isCompleted: json['isCompleted'],
+      note: json['note'] ?? '',
     );
   }
 
@@ -24,6 +25,7 @@ class Task {
       'title': title,
       'priority': priority,
       'isCompleted': isCompleted,
+      'note': note,
     };
   }
 }

@@ -2,7 +2,6 @@ import 'dart:convert'; // For JSON encoding and decoding
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_list/models/task.dart';
-import 'dart:convert';
 
 class TaskProvider with ChangeNotifier {
   List<Task> _tasks = [];
@@ -30,8 +29,8 @@ class TaskProvider with ChangeNotifier {
     prefs.setString('tasks', tasksJson);
   }
 
-  void addTask(String title, int priority) {
-    _tasks.add(Task(title: title, priority: priority));
+  void addTask(String title, int priority, String note) {
+    _tasks.add(Task(title: title, priority: priority, note: note));
     _sortTasks();
     _saveTasks();
     notifyListeners();
@@ -39,6 +38,12 @@ class TaskProvider with ChangeNotifier {
 
   void toggleTaskCompletion(int index) {
     _tasks[index].isCompleted = !_tasks[index].isCompleted;
+    _saveTasks();
+    notifyListeners();
+  }
+
+  void updateTaskNote(int index, String note) {
+    _tasks[index].note = note;
     _saveTasks();
     notifyListeners();
   }
