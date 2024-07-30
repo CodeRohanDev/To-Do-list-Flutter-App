@@ -27,6 +27,14 @@ class Task {
     return '$year-$month-$day $hour:$minute';
   }
 
+  // Method to check if the task is missed
+  void updateMissedStatus() {
+    if (timestamp != null && DateTime.now().isAfter(timestamp!)) {
+      isMissed = true;
+      isCompleted = true; // Automatically mark as completed
+    }
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -34,6 +42,7 @@ class Task {
       'priority': priority,
       'timestamp': timestamp?.toIso8601String(),
       'isCompleted': isCompleted,
+      'isMissed': isMissed,
     };
   }
 
@@ -45,6 +54,7 @@ class Task {
       timestamp:
           json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
       isCompleted: json['isCompleted'],
+      isMissed: json['isMissed'] ?? false,
     );
   }
 }

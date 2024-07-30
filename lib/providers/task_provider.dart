@@ -17,9 +17,12 @@ class TaskProvider with ChangeNotifier {
     final tasksJson = prefs.getString('tasks');
     if (tasksJson != null) {
       final List<dynamic> decodedTasks = jsonDecode(tasksJson);
-      _tasks = decodedTasks.map((taskJson) => Task.fromJson(taskJson)).toList();
+      _tasks = decodedTasks.map((taskJson) {
+        final task = Task.fromJson(taskJson);
+        task.updateMissedStatus(); // Check if the task is missed
+        return task;
+      }).toList();
       _sortTasks();
-      _checkMissedTasks(); // Check for missed tasks on load
       notifyListeners();
     }
   }
@@ -32,25 +35,29 @@ class TaskProvider with ChangeNotifier {
 
   void addTask(String title, String note, int priority, DateTime? timestamp) {
     final task = Task(
-      title: title,
-      note: note,
-      priority: priority,
-      timestamp: timestamp,
-    );
+        title: title, note: note, priority: priority, timestamp: timestamp);
+    task.updateMissedStatus(); // Check if the newly added task is missed
     _tasks.add(task);
     _sortTasks();
-    _checkMissedTasks(); // Check for missed tasks whenever a new task is added
+    _saveTasks();
+    notifyListeners();
+  }
+
+  void updateTask(int index, Task updatedTask) {
+    updatedTask.updateMissedStatus(); // Check if the updated task is missed
+    _tasks[index] = updatedTask;
+    _sortTasks();
     _saveTasks();
     notifyListeners();
   }
 
   void toggleTaskCompletion(int index) {
-    if (_tasks[index].isMissed) {
-      // Do not allow toggling if the task is missed
-      return;
+    final task = _tasks[index];
+    if (task.isMissed) {
+      task.isMissed = false; // Allow user to uncheck a missed task
+    } else {
+      task.isCompleted = !task.isCompleted;
     }
-
-    _tasks[index].isCompleted = !_tasks[index].isCompleted;
     _saveTasks();
     notifyListeners();
   }
@@ -63,20 +70,5 @@ class TaskProvider with ChangeNotifier {
 
   void _sortTasks() {
     _tasks.sort((a, b) => a.priority.compareTo(b.priority));
-  }
-
-  void _checkMissedTasks() {
-    final now = DateTime.now();
-    for (var task in _tasks) {
-      if (task.timestamp != null &&
-          !task.isCompleted &&
-          !task.isMissed &&
-          task.timestamp!.isBefore(now)) {
-        task.isMissed = true;
-        task.isCompleted = true;
-      }
-    }
-    _saveTasks();
-    notifyListeners();
   }
 }

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +86,15 @@ class TaskList extends StatelessWidget {
                 ),
                 trailing: GestureDetector(
                   onTap: () {
-                    if (!task.isMissed) {
+                    if (task.isCompleted) {
+                      if (task.isMissed) {
+                        // Allow user to uncheck missed tasks without confirmation
+                        taskProvider.toggleTaskCompletion(index);
+                      } else {
+                        _showUncheckConfirmationDialog(
+                            context, index, taskProvider);
+                      }
+                    } else {
                       taskProvider.toggleTaskCompletion(index);
                     }
                   },
@@ -142,6 +150,34 @@ class TaskList extends StatelessWidget {
               child: Text('Delete'),
               onPressed: () {
                 taskProvider.deleteTask(index);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showUncheckConfirmationDialog(
+      BuildContext context, int index, TaskProvider taskProvider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Uncheck'),
+          content: Text('Are you sure you want to uncheck this task?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Uncheck'),
+              onPressed: () {
+                taskProvider.toggleTaskCompletion(index);
                 Navigator.of(context).pop();
               },
             ),
