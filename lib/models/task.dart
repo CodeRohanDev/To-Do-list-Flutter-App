@@ -4,6 +4,7 @@ class Task {
   final int priority;
   final DateTime? timestamp;
   bool isCompleted;
+  bool isMissed;
 
   Task({
     required this.title,
@@ -11,6 +12,7 @@ class Task {
     required this.priority,
     this.timestamp,
     this.isCompleted = false,
+    this.isMissed = false,
   });
 
   // Method to get the formatted timestamp

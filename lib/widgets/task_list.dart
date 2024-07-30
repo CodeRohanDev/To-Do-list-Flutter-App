@@ -70,11 +70,25 @@ class TaskList extends StatelessWidget {
                           ),
                         ],
                       ),
+                    if (task.isMissed)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'Missed',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 trailing: GestureDetector(
                   onTap: () {
-                    taskProvider.toggleTaskCompletion(index);
+                    if (!task.isMissed) {
+                      taskProvider.toggleTaskCompletion(index);
+                    }
                   },
                   child: Container(
                     width: 24.0,

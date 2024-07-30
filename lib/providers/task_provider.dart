@@ -19,6 +19,7 @@ class TaskProvider with ChangeNotifier {
       final List<dynamic> decodedTasks = jsonDecode(tasksJson);
       _tasks = decodedTasks.map((taskJson) => Task.fromJson(taskJson)).toList();
       _sortTasks();
+      _checkMissedTasks(); // Check for missed tasks on load
       notifyListeners();
     }
   }
@@ -31,17 +32,24 @@ class TaskProvider with ChangeNotifier {
 
   void addTask(String title, String note, int priority, DateTime? timestamp) {
     final task = Task(
-        title: title,
-        note: note,
-        priority: priority,
-        timestamp: timestamp);
+      title: title,
+      note: note,
+      priority: priority,
+      timestamp: timestamp,
+    );
     _tasks.add(task);
     _sortTasks();
+    _checkMissedTasks(); // Check for missed tasks whenever a new task is added
     _saveTasks();
     notifyListeners();
   }
 
   void toggleTaskCompletion(int index) {
+    if (_tasks[index].isMissed) {
+      // Do not allow toggling if the task is missed
+      return;
+    }
+
     _tasks[index].isCompleted = !_tasks[index].isCompleted;
     _saveTasks();
     notifyListeners();
@@ -55,5 +63,20 @@ class TaskProvider with ChangeNotifier {
 
   void _sortTasks() {
     _tasks.sort((a, b) => a.priority.compareTo(b.priority));
+  }
+
+  void _checkMissedTasks() {
+    final now = DateTime.now();
+    for (var task in _tasks) {
+      if (task.timestamp != null &&
+          !task.isCompleted &&
+          !task.isMissed &&
+          task.timestamp!.isBefore(now)) {
+        task.isMissed = true;
+        task.isCompleted = true;
+      }
+    }
+    _saveTasks();
+    notifyListeners();
   }
 }
