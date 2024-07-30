@@ -41,9 +41,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('To-Do List'),
-      ),
       body: TaskList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTaskBottomSheet(context),
